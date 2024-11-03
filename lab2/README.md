@@ -1,5 +1,5 @@
-## PyQt 6
-# Круг с бегающей точкой, скорость и направление которой меняется соответсвующими элементами управления
+## PyQt 5
+# 
 
 # Виртуальное окружение
 ```bash
@@ -16,3 +16,8 @@ source ./venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
+
+
+# Визуализация 
+
+<img src="./visualization/birds&columns.gif" alt="birds">
