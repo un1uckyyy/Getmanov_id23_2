@@ -1,29 +1,67 @@
+import json
+import os.path
 import random
+import sys
 from typing import List, Dict
 
-from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 from PyQt5.QtCore import Qt, QPointF, QRectF
-
-from config import COLUMN_REPAIR_TIME, BIRD_FLYING_AWAY_TIME, BIRDS_NUM, COLUMNS_NUM, WINDOW_WIDTH, BIRD_SITTING_TIME
+from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
+from config import (
+    COLUMN_REPAIR_TIME,
+    BIRD_FLYING_AWAY_TIME,
+    BIRDS_NUM,
+    COLUMNS_NUM,
+    WINDOW_WIDTH,
+    BIRD_SITTING_TIME,
+    COLUMN_DURABILITY,
+)
 from .constants import ColumnState, BirdState
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, file_path=None, create_path="random_initial_state.json"):
         self.birds: List[Bird] = []
+        self.columns: List[Column] = []
+
+        if file_path is not None:
+            self.try_load_initial_state(file_path)
+        else:
+            self.create_random_initial_state(create_path)
+
+    def try_load_initial_state(self, file_path):
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                state = json.load(f)
+                birds_props = state.get("birds", [])
+                for bird_prop in birds_props:
+                    self.birds.append(Bird(**bird_prop))
+
+                columns_props = state.get("columns", [])
+                for column_prop in columns_props:
+                    self.columns.append(Column(**column_prop))
+        else:
+            print(f"Не удалось найти указанный файл: {file_path}")
+            sys.exit(1)
+
+    def create_random_initial_state(self, create_path):
         for _ in range(BIRDS_NUM):
             x = random.randint(50, WINDOW_WIDTH - 50)
             y = random.randint(50, 150)
             bird = Bird(x, y)
             self.birds.append(bird)
 
-        self.columns: List[Column] = []
         for _ in range(COLUMNS_NUM):
             x = random.randint(50, WINDOW_WIDTH - 50)
             y = 380
-            max_birds = 2
-            column = Column(x, y, max_birds)
+            column = Column(x, y)
             self.columns.append(column)
+
+        with open(create_path, 'w') as f:
+            state = {
+                "birds": [bird.toJSON() for bird in self.birds],
+                "columns": [column.toJSON() for column in self.columns],
+            }
+            json.dump(state, f, indent=1)
 
     def update(self, time_delta):
         for bird in self.birds:
@@ -44,7 +82,7 @@ class Board:
 
 
 class Column:
-    def __init__(self, x, y, durability):
+    def __init__(self, x, y, durability=COLUMN_DURABILITY):
         self.color = QColor(189, 189, 189)
         self.x = x
         self.y = y
@@ -56,6 +94,13 @@ class Column:
         self.width = 10
         self.height = 150
         self.durability = durability
+
+    def toJSON(self):
+        return {
+            "x": self.x,
+            "y": self.y,
+            "durability": self.durability,
+        }
 
     def update(self, time_delta, board: Board):
         if self.state == ColumnState.STANDING and len(self.sitting_birds) > self.durability:
@@ -84,7 +129,7 @@ class Column:
 
 
 class Bird:
-    def __init__(self, x, y):
+    def __init__(self, x, y, sitting_time=BIRD_SITTING_TIME):
         self.color = QColor(0, 0, 255)
         self.x = x
         self.y = y
@@ -95,9 +140,16 @@ class Bird:
 
         self.target_column: Column | None = None
 
-        self.sitting_time: int = BIRD_SITTING_TIME
+        self.sitting_time: int = sitting_time
 
         self.flying_away_time: int = 0
+
+    def toJSON(self):
+        return {
+            "x": self.x,
+            "y": self.y,
+            "sitting_time": self.sitting_time,
+        }
 
     def update(self, time_delta: int, board: Board):
         if self.state == BirdState.FLYING_AWAY:

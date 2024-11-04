@@ -8,14 +8,18 @@ from models.models import Board
 
 
 class DrawingArea(QWidget):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
         self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
         widget = QWidget(self)
         layout = QVBoxLayout(widget)
 
-
-        self.board = Board()
+        board_opt = {}
+        file = kwargs.get('file')
+        if file:
+            board_opt['file_path'] = file
+        board_opt['create_path'] = kwargs.get('create')
+        self.board = Board(**board_opt)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
