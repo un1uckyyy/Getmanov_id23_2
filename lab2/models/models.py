@@ -4,7 +4,7 @@ from typing import List, Dict
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 from PyQt5.QtCore import Qt, QPointF, QRectF
 
-from config import COLUMN_REPAIR_TIME, BIRD_FLYING_AWAY_TIME, BIRDS_NUM, COLUMNS_NUM, WINDOW_WIDTH
+from config import COLUMN_REPAIR_TIME, BIRD_FLYING_AWAY_TIME, BIRDS_NUM, COLUMNS_NUM, WINDOW_WIDTH, BIRD_SITTING_TIME
 from .constants import ColumnState, BirdState
 
 
@@ -14,8 +14,7 @@ class Board:
         for _ in range(BIRDS_NUM):
             x = random.randint(50, WINDOW_WIDTH - 50)
             y = random.randint(50, 150)
-            sitting_time = 2000
-            bird = Bird(x, y, sitting_time)
+            bird = Bird(x, y)
             self.birds.append(bird)
 
         self.columns: List[Column] = []
@@ -85,7 +84,7 @@ class Column:
 
 
 class Bird:
-    def __init__(self, x, y, sitting_time):
+    def __init__(self, x, y):
         self.color = QColor(0, 0, 255)
         self.x = x
         self.y = y
@@ -96,7 +95,7 @@ class Bird:
 
         self.target_column: Column | None = None
 
-        self.sitting_time: int = sitting_time
+        self.sitting_time: int = BIRD_SITTING_TIME
 
         self.flying_away_time: int = 0
 
@@ -113,6 +112,7 @@ class Bird:
 
         if self.state == BirdState.SITTING:
             if self.sitting_time < 0:
+                self.sitting_time = BIRD_SITTING_TIME
                 self.state = BirdState.FLYING_AWAY
                 self.flying_away_time = BIRD_FLYING_AWAY_TIME
                 self.target_column.sitting_birds.pop(id(self))
