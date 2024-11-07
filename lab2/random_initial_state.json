@@ -1,0 +1,176 @@
+{
+ "birds": [
+  {
+   "x": 96,
+   "y": 120,
+   "sitting_time": 2000
+  },
+  {
+   "x": 170,
+   "y": 136,
+   "sitting_time": 2000
+  },
+  {
+   "x": 570,
+   "y": 128,
+   "sitting_time": 2000
+  },
+  {
+   "x": 347,
+   "y": 121,
+   "sitting_time": 2000
+  },
+  {
+   "x": 495,
+   "y": 130,
+   "sitting_time": 2000
+  },
+  {
+   "x": 237,
+   "y": 63,
+   "sitting_time": 2000
+  },
+  {
+   "x": 565,
+   "y": 59,
+   "sitting_time": 2000
+  },
+  {
+   "x": 190,
+   "y": 74,
+   "sitting_time": 2000
+  },
+  {
+   "x": 206,
+   "y": 120,
+   "sitting_time": 2000
+  },
+  {
+   "x": 606,
+   "y": 119,
+   "sitting_time": 2000
+  },
+  {
+   "x": 521,
+   "y": 121,
+   "sitting_time": 2000
+  },
+  {
+   "x": 722,
+   "y": 143,
+   "sitting_time": 2000
+  },
+  {
+   "x": 337,
+   "y": 90,
+   "sitting_time": 2000
+  },
+  {
+   "x": 501,
+   "y": 72,
+   "sitting_time": 2000
+  },
+  {
+   "x": 258,
+   "y": 126,
+   "sitting_time": 2000
+  },
+  {
+   "x": 469,
+   "y": 134,
+   "sitting_time": 2000
+  },
+  {
+   "x": 650,
+   "y": 145,
+   "sitting_time": 2000
+  },
+  {
+   "x": 347,
+   "y": 66,
+   "sitting_time": 2000
+  },
+  {
+   "x": 255,
+   "y": 62,
+   "sitting_time": 2000
+  },
+  {
+   "x": 350,
+   "y": 75,
+   "sitting_time": 2000
+  },
+  {
+   "x": 385,
+   "y": 148,
+   "sitting_time": 2000
+  },
+  {
+   "x": 379,
+   "y": 70,
+   "sitting_time": 2000
+  }
+ ],
+ "columns": [
+  {
+   "x": 631,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 556,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 486,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 203,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 667,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 186,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 704,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 547,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 494,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 519,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 75,
+   "y": 380,
+   "durability": 2
+  },
+  {
+   "x": 280,
+   "y": 380,
+   "durability": 2
+  }
+ ]
+}

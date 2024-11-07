@@ -1,28 +1,11 @@
-import argparse
-
 from PyQt5.QtWidgets import QApplication
 
+from cli.parser import init_parser
 from widgets.widgets import DrawingArea
 
 
-def create_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-f",
-        "--file",
-        help="file with program initial state"
-    )
-    parser.add_argument(
-        "-c",
-        "--create",
-        default="random_initial_state.json",
-        help="where the initial state will be saved"
-    )
-
-    return parser
-
 def main():
-    parser = create_parser()
+    parser = init_parser()
     args = parser.parse_args()
 
     app = QApplication([])
