@@ -11,3 +11,4 @@ class BirdState(StrEnum):
     FLYING_TO_COLUMN = "fly_to_column"
     SITTING = "sitting"
     FLYING_AWAY = "flying_away"
+    FLEW_AWAY = "flew_away"

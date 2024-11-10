@@ -28,6 +28,19 @@ class Board:
         else:
             self.create_random_initial_state(create_path)
 
+    def spawn_bird(self):
+        x = random.randint(50, WINDOW_WIDTH - 50)
+        y = random.randint(50, 150)
+        bird = Bird(x, y)
+        self.birds[id(bird)] = bird
+
+    def spawn_column(self, x=None):
+        if x is None:
+            x = random.randint(50, WINDOW_WIDTH - 50)
+        y = 380
+        column = Column(x, y)
+        self.columns[id(column)] = column
+
     def try_load_initial_state(self, file_path):
         if os.path.exists(file_path):
             with open(file_path, 'r') as f:
@@ -47,16 +60,10 @@ class Board:
 
     def create_random_initial_state(self, create_path):
         for _ in range(BIRDS_NUM):
-            x = random.randint(50, WINDOW_WIDTH - 50)
-            y = random.randint(50, 150)
-            bird = Bird(x, y)
-            self.birds[id(bird)] = bird
+            self.spawn_bird()
 
         for _ in range(COLUMNS_NUM):
-            x = random.randint(50, WINDOW_WIDTH - 50)
-            y = 380
-            column = Column(x, y)
-            self.columns[id(column)] = column
+            self.spawn_column()
 
         with open(create_path, 'w') as f:
             state = {
@@ -66,10 +73,14 @@ class Board:
             json.dump(state, f, indent=1)
 
     def update(self, time_delta):
-        for bird in self.birds.values():
+        for bird in list(self.birds.values()):
             bird.update(time_delta, self)
-        for column in self.columns.values():
+            if bird.state == BirdState.FLEW_AWAY:
+                del self.birds[id(bird)]
+        for column in list(self.columns.values()):
             column.update(time_delta, self)
+            if column.state == ColumnState.DESTROYED:
+                del self.columns[id(column)]
 
     def draw(self, painter: QPainter):
         for bird in self.birds.values():
@@ -92,7 +103,6 @@ class Column:
         self.sitting_birds: Dict[int: Bird] = {}
         self.state = ColumnState.STANDING
 
-        self.repair_time = 0  # время отсутствия
         self.width = 10
         self.height = 150
         self.durability = durability
@@ -107,18 +117,10 @@ class Column:
     def update(self, time_delta, board: Board):
         if self.state == ColumnState.STANDING and len(self.sitting_birds) > self.durability:
             self.state = ColumnState.DESTROYED
-            self.repair_time = COLUMN_REPAIR_TIME
             for bird in board.birds.values():
                 if id(bird.target_column) == id(self):
                     bird.state = BirdState.LOOKING_FOR_COLUMN
                     bird.target_column = None
-            self.sitting_birds = {}
-
-        if self.state == ColumnState.DESTROYED:
-            self.repair_time -= time_delta
-
-        if self.repair_time < 0:
-            self.state = ColumnState.STANDING
 
     def draw(self, painter: QPainter):
         if self.state == ColumnState.STANDING:
@@ -144,7 +146,6 @@ class Bird:
 
         self.sitting_time: int = sitting_time
 
-        self.flying_away_time: int = 0
 
     def toJSON(self):
         return {
@@ -155,20 +156,17 @@ class Bird:
 
     def update(self, time_delta: int, board: Board):
         if self.state == BirdState.FLYING_AWAY:
-            if self.flying_away_time < 0:
-                self.state = BirdState.LOOKING_FOR_COLUMN
-                self.flying_away_time = 0
+            if self.y < 0:
+                self.state = BirdState.FLEW_AWAY
                 return
 
             self.y -= self.speed
-            self.flying_away_time -= time_delta
             return
 
         if self.state == BirdState.SITTING:
             if self.sitting_time < 0:
                 self.sitting_time = BIRD_SITTING_TIME
                 self.state = BirdState.FLYING_AWAY
-                self.flying_away_time = BIRD_FLYING_AWAY_TIME
                 self.target_column.sitting_birds.pop(id(self))
                 self.target_column = None
                 return
@@ -179,11 +177,11 @@ class Bird:
         if self.state == BirdState.LOOKING_FOR_COLUMN:
             available_columns = board.available_columns
             if not available_columns:
-                self.y -= self.speed
+                self.y += self.speed * random.randint(-1, 1)
                 self.x += self.speed * random.randint(-1, 1)
                 return
             target_column = self.pick_column(
-                available_columns)  # может не быть доступных колонн, тогда target_column == None
+                available_columns)
 
             self.state = BirdState.FLYING_TO_COLUMN
             self.target_column = target_column

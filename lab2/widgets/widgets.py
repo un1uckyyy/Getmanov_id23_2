@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QPainter
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QSlider
 
 from config import FRAME_RATE, WINDOW_WIDTH, WINDOW_HEIGHT
 
@@ -30,9 +30,43 @@ class DrawingArea(QWidget):
         self.pause_button.clicked.connect(self.handle_pause_btn_clicked)
         layout.addWidget(self.pause_button)
 
+        self.birds_spawn_frequency_slider = QSlider(Qt.Horizontal)
+        self.birds_spawn_frequency_slider.setMinimum(200)
+        self.birds_spawn_frequency_slider.setMaximum(10000)
+        self.birds_spawn_frequency_slider.setValue(5000)
+        self.birds_spawn_frequency_slider.valueChanged.connect(self.set_birds_spawn_frequency)
+        self.birds_spawn_frequency_timer = QTimer()
+        self.birds_spawn_frequency_timer.timeout.connect(self.spawn_bird)
+        self.birds_spawn_frequency_timer.start(self.birds_spawn_frequency_slider.value())
+        layout.addWidget(self.birds_spawn_frequency_slider)
+
+        self.columns_spawn_frequency_slider = QSlider(Qt.Horizontal)
+        self.columns_spawn_frequency_slider.setMinimum(200)
+        self.columns_spawn_frequency_slider.setMaximum(10000)
+        self.columns_spawn_frequency_slider.setValue(5000)
+        self.columns_spawn_frequency_slider.valueChanged.connect(self.set_columns_spawn_frequency)
+        self.columns_spawn_frequency_timer = QTimer()
+        self.columns_spawn_frequency_timer.timeout.connect(self.spawn_column)
+        self.columns_spawn_frequency_timer.start(self.columns_spawn_frequency_slider.value())
+        layout.addWidget(self.columns_spawn_frequency_slider)
+
     def update(self):
         time_delta = 1000 / FRAME_RATE
         self.board.update(time_delta)
+        self.repaint()
+
+    def set_birds_spawn_frequency(self, value):
+        self.birds_spawn_frequency_timer.setInterval(value)
+
+    def spawn_bird(self):
+        self.board.spawn_bird()
+        self.repaint()
+
+    def set_columns_spawn_frequency(self, value):
+        self.columns_spawn_frequency_timer.setInterval(value)
+
+    def spawn_column(self, x=None):
+        self.board.spawn_column(x)
         self.repaint()
 
     def paintEvent(self, event):
@@ -41,10 +75,18 @@ class DrawingArea(QWidget):
 
         self.board.draw(painter)
 
+    def mousePressEvent(self, event):
+        if 380 <= event.y() <= 530:
+            self.spawn_column(event.x())
+
     def handle_pause_btn_clicked(self):
         if self.pause_button.isChecked():
             self.timer.stop()
+            self.birds_spawn_frequency_timer.stop()
+            self.columns_spawn_frequency_timer.stop()
             self.pause_button.setText('Play')
         else:
             self.timer.start(1000 // FRAME_RATE)
+            self.birds_spawn_frequency_timer.start(self.birds_spawn_frequency_slider.value())
+            self.columns_spawn_frequency_timer.start(self.columns_spawn_frequency_slider.value())
             self.pause_button.setText('Pause')
