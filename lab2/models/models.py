@@ -30,7 +30,7 @@ class Board:
 
     def spawn_bird(self):
         x = random.randint(50, WINDOW_WIDTH - 50)
-        y = random.randint(50, 150)
+        y = random.randint(0, 50)
         bird = Bird(x, y)
         self.birds[id(bird)] = bird
 
