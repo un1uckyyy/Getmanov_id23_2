@@ -20,8 +20,8 @@ from .constants import ColumnState, BirdState
 
 class Board:
     def __init__(self, file_path=None, create_path="random_initial_state.json"):
-        self.birds: List[Bird] = []
-        self.columns: List[Column] = []
+        self.birds: Dict[int: Bird] = {}
+        self.columns: Dict[int: Column] = {}
 
         if file_path is not None:
             self.try_load_initial_state(file_path)
@@ -34,11 +34,13 @@ class Board:
                 state = json.load(f)
                 birds_props = state.get("birds", [])
                 for bird_prop in birds_props:
-                    self.birds.append(Bird(**bird_prop))
+                    bird = Bird(**bird_prop)
+                    self.birds[id(bird)] = bird
 
                 columns_props = state.get("columns", [])
                 for column_prop in columns_props:
-                    self.columns.append(Column(**column_prop))
+                    column = Column(**column_prop)
+                    self.columns[id(column)] = column
         else:
             print(f"Не удалось найти указанный файл: {file_path}")
             sys.exit(1)
@@ -48,37 +50,37 @@ class Board:
             x = random.randint(50, WINDOW_WIDTH - 50)
             y = random.randint(50, 150)
             bird = Bird(x, y)
-            self.birds.append(bird)
+            self.birds[id(bird)] = bird
 
         for _ in range(COLUMNS_NUM):
             x = random.randint(50, WINDOW_WIDTH - 50)
             y = 380
             column = Column(x, y)
-            self.columns.append(column)
+            self.columns[id(column)] = column
 
         with open(create_path, 'w') as f:
             state = {
-                "birds": [bird.toJSON() for bird in self.birds],
-                "columns": [column.toJSON() for column in self.columns],
+                "birds": [bird.toJSON() for bird in self.birds.values()],
+                "columns": [column.toJSON() for column in self.columns.values()],
             }
             json.dump(state, f, indent=1)
 
     def update(self, time_delta):
-        for bird in self.birds:
+        for bird in self.birds.values():
             bird.update(time_delta, self)
-        for column in self.columns:
+        for column in self.columns.values():
             column.update(time_delta, self)
 
     def draw(self, painter: QPainter):
-        for bird in self.birds:
+        for bird in self.birds.values():
             bird.draw(painter)
 
-        for column in self.columns:
+        for column in self.columns.values():
             column.draw(painter)
 
     @property
     def available_columns(self):
-        return [column for column in self.columns if column.state == ColumnState.STANDING]
+        return [column for column in self.columns.values() if column.state == ColumnState.STANDING]
 
 
 class Column:
@@ -106,7 +108,7 @@ class Column:
         if self.state == ColumnState.STANDING and len(self.sitting_birds) > self.durability:
             self.state = ColumnState.DESTROYED
             self.repair_time = COLUMN_REPAIR_TIME
-            for bird in board.birds:
+            for bird in board.birds.values():
                 if id(bird.target_column) == id(self):
                     bird.state = BirdState.LOOKING_FOR_COLUMN
                     bird.target_column = None
