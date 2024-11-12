@@ -14,6 +14,8 @@ from config import (
     WINDOW_WIDTH,
     BIRD_SITTING_TIME,
     COLUMN_DURABILITY,
+    COLUMN_WIDTH,
+    COLUMN_HEIGHT,
 )
 from .constants import ColumnState, BirdState
 
@@ -36,7 +38,7 @@ class Board:
 
     def spawn_column(self, x=None):
         if x is None:
-            x = random.randint(50, WINDOW_WIDTH - 50)
+            x = random.randint(50 // (2 * COLUMN_WIDTH), (WINDOW_WIDTH - 50) // (2 * COLUMN_WIDTH)) * 2 * COLUMN_WIDTH
         y = 380
         column = Column(x, y)
         self.columns[id(column)] = column
@@ -103,8 +105,8 @@ class Column:
         self.sitting_birds: Dict[int: Bird] = {}
         self.state = ColumnState.STANDING
 
-        self.width = 10
-        self.height = 150
+        self.width = COLUMN_WIDTH
+        self.height = COLUMN_HEIGHT
         self.durability = durability
 
     def toJSON(self):

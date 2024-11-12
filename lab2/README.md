@@ -38,4 +38,4 @@ python .\main.py -с init.json
 
 # Визуализация 
 
-<img src="./visualization/birds&columns.gif" alt="birds">
+<img src="./visualization/birds&columns2.gif" alt="birds">
