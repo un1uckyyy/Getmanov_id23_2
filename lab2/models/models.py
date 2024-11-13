@@ -3,6 +3,7 @@ import os.path
 import random
 import sys
 from typing import List, Dict
+from math import cos, sin, pi, acos
 
 from PyQt5.QtCore import Qt, QPointF, QRectF
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
@@ -12,6 +13,7 @@ from config import (
     BIRDS_NUM,
     COLUMNS_NUM,
     WINDOW_WIDTH,
+    WINDOW_HEIGHT,
     BIRD_SITTING_TIME,
     COLUMN_DURABILITY,
     COLUMN_WIDTH,
@@ -148,6 +150,7 @@ class Bird:
 
         self.sitting_time: int = sitting_time
 
+        self.flitting_y, self.flitting_x = 300, -1
 
     def toJSON(self):
         return {
@@ -187,13 +190,24 @@ class Bird:
 
             self.state = BirdState.FLYING_TO_COLUMN
             self.target_column = target_column
+            if self.y > self.flitting_y:
+                self.flitting_x = self.x + (self.target_column.x - self.x) // 2
+            else:
+                self.state = BirdState.FLYING_TO_COLUMN
 
         if self.state == BirdState.FLYING_TO_COLUMN:
-            dx = self.target_column.x - self.x
-            dy = self.target_column.y - self.y
+            if self.y < self.flitting_y + self.speed:
+                self.flitting_x = -1
+
+            if self.flitting_x != -1:
+                dx = self.flitting_x - self.x
+                dy = self.flitting_y - self.y
+            else:
+                dx = self.target_column.x - self.x
+                dy = self.target_column.y - self.y
             delta_distance = (dx ** 2 + dy ** 2) ** 0.5
 
-            if delta_distance < self.speed:
+            if delta_distance < self.speed and self.flitting_x == -1:
                 self.x, self.y = self.target_column.x, self.target_column.y
                 self.state = BirdState.SITTING
                 self.target_column.sitting_birds[id(self)] = self
