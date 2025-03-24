@@ -1,5 +1,6 @@
 import numpy as np
 
+
 # https://en.wikipedia.org/wiki/Otsu%27s_method
 def otsu_threshold(image):
     hist, bins = np.histogram(image, bins=256, range=(0, 256))  # Гистограмма яркости
@@ -25,5 +26,7 @@ def otsu_threshold(image):
     return best_threshold
 
 
-def otsu_binarization(image, threshold):
+def otsu_binarization(image):
+    threshold = otsu_threshold(image)
+
     return (image > threshold).astype(np.uint8) * 255
