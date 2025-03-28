@@ -2,6 +2,7 @@ services:
   app:
     image: 'ghcr.io/un1uckyyy/fast-api-fa:dev'
     environment:
+      DEBUG: true
       SECRET_KEY: $SECRET_KEY
       ALGORITHM: $ALGORITHM
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
