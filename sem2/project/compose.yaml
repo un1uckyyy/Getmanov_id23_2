@@ -1,0 +1,9 @@
+services:
+  app:
+    image: 'ghcr.io/un1uckyyy/fast-api-fa:dev'
+    environment:
+      SECRET_KEY: $SECRET_KEY
+      ALGORITHM: $ALGORITHM
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+    ports:
+      - '8000:8000'
