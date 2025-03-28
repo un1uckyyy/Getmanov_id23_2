@@ -9,7 +9,9 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from .config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
-from ..cruds.users import get_user
+from ..cruds.users import get_user_by_email
+from ..db.sqlite import DbSession
+from ..models.users import DbUser
 
 
 class TokenData(BaseModel):
@@ -39,7 +41,10 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        db: DbSession,
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -55,8 +60,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     except InvalidTokenError:
         raise credentials_exception
 
-    user = get_user(email=token_data.username)
+    user = get_user_by_email(db, email=token_data.username)
     if user is None:
         raise credentials_exception
 
     return user
+
+
+CurrentUser = Annotated[DbUser, Depends(get_current_user)]
