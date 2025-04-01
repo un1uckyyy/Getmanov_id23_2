@@ -1,15 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth & Image Upload</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
-<div>
-    Hello world!
-</div>
-</body>
-<script>
+<h1>Добро пожаловать</h1>
+<button onclick="openModal('loginModal')">Login</button>
+<button onclick="openModal('signUpModal')">Sign Up</button>
+<button onclick="getProfile()">Профиль</button>
 
+<div id="loginModal" class="modal">
+    <h2>Login</h2>
+    <label>Email: <input type="email" id="loginEmail"></label><br>
+    <label>Password: <input type="password" id="loginPassword"></label><br>
+    <button onclick="login()">Отправить</button>
+    <button onclick="closeModal('loginModal')">Закрыть</button>
+</div>
+
+<div id="signUpModal" class="modal">
+    <h2>Sign Up</h2>
+    <label>Email: <input type="email" id="signUpEmail"></label><br>
+    <label>Password: <input type="password" id="signUpPassword"></label><br>
+    <button onclick="signUp()">Отправить</button>
+    <button onclick="closeModal('signUpModal')">Закрыть</button>
+</div>
+
+<h2>Загрузка изображения</h2>
+<input type="file" id="imageInput" accept="image/*">
+<button onclick="uploadImage()">Загрузить</button>
+
+<h3>Оригинальное изображение:</h3>
+<img id="uploadedImage" style="max-width: 300px; display: none;">
+
+<h3>Обработанное изображение:</h3>
+<img id="processedImage" style="max-width: 300px; display: none;">
+
+<script>
+    let token = "";
+
+    function openModal(id) {
+        document.getElementById(id).style.display = "block";
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+    }
+
+    async function login() {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
+        const response = await fetch("/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({email, password})
+        });
+        const data = await response.json();
+        if (response.ok) {
+            token = data.token;
+            alert("Вы успешно вошли!");
+        } else {
+            alert("Ошибка: " + JSON.stringify(data));
+        }
+        closeModal('loginModal');
+    }
+
+    async function signUp() {
+        const email = document.getElementById("signUpEmail").value;
+        const password = document.getElementById("signUpPassword").value;
+
+        const response = await fetch("/sign-up", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({email, password})
+        });
+        const data = await response.json();
+        if (response.ok) {
+            alert("Вы успешно зарегистрировались")
+        } else {
+            alert("Ошибка: " + JSON.stringify(data));
+        }
+        closeModal('signUpModal');
+    }
+
+    async function getProfile() {
+        const response = await fetch("/users/me", {
+            method: "GET",
+            headers: {"Authorization": `Bearer ${token}`}
+        });
+        const data = await response.json();
+        if (response.ok) {
+            alert("Данные профиля: " + JSON.stringify(data));
+        } else {
+            alert("Ошибка: " + JSON.stringify(data));
+        }
+    }
+
+    async function uploadImage() {
+        const fileInput = document.getElementById("imageInput");
+        if (!fileInput.files.length) {
+            alert("Выберите файл");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", fileInput.files[0]);
+
+        const response = await fetch("/binary_image", {
+            method: "POST",
+            headers: {"Authorization": `Bearer ${token}`},
+            body: formData
+        });
+
+        if (response.ok) {
+            document.getElementById("uploadedImage").src = URL.createObjectURL(fileInput.files[0]);
+            document.getElementById("uploadedImage").style.display = "block";
+
+            const blob = await response.blob();
+            document.getElementById("processedImage").src = URL.createObjectURL(blob);
+            document.getElementById("processedImage").style.display = "block";
+        } else {
+            const data = await response.json();
+            alert("Ошибка загрузки изображения: " + JSON.stringify(data));
+        }
+    }
 </script>
+</body>
 </html>

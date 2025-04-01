@@ -5,6 +5,7 @@ opencv-python==4.11.0.86
 
 PyJWT==2.10.1
 passlib==1.7.4
+bcrypt==4.3.0
 
 SQLAlchemy==2.0.39
 alembic==1.15.1

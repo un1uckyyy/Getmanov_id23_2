@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from starlette.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 
 from app.api import auth, users, binary
 
@@ -10,7 +10,11 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(binary.router)
 
-app.mount("/", StaticFiles(directory="public"), name="public")
+
+@app.get("/")
+async def index():
+    return FileResponse("./public/index.html")
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

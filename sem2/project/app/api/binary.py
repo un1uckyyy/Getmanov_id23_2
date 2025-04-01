@@ -5,12 +5,16 @@ from fastapi import APIRouter, File, Response
 
 from ..services.binary import otsu_binarization
 from ..services.grayscale import grayscale
+from ..core.auth import CurrentUser
 
-router = APIRouter()
+router = APIRouter(tags=["image binarization"])
 
 
 @router.post("/binary_image")
-async def binary(image: Annotated[bytes, File()]):
+async def binary(
+        current_user: CurrentUser,
+        image: Annotated[bytes, File()]
+):
     gray_img = grayscale(image)
 
     binary_img = otsu_binarization(gray_img)

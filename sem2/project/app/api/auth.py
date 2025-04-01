@@ -6,7 +6,7 @@ from ..db.sqlite import DbSession
 from ..schemas.auth import Login, Register
 from ..schemas.users import UserWithToken
 
-router = APIRouter()
+router = APIRouter(tags=["auth"])
 
 UNAUTHORIZED_EXCEPTION = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
