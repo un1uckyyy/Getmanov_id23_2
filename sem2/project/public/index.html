@@ -91,6 +91,7 @@
         });
         const data = await response.json();
         if (response.ok) {
+            token = data.token;
             alert("Вы успешно зарегистрировались")
         } else {
             alert("Ошибка: " + JSON.stringify(data));
