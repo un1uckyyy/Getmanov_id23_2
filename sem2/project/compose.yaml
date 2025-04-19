@@ -1,11 +1,45 @@
 services:
   app:
-    image: 'ghcr.io/un1uckyyy/fast-api-fa:dev'
+    build:
+      context: .
     environment:
       DEBUG: true
       DATABASE_URL: 'sqlite:///sem2.db'
       SECRET_KEY: $SECRET_KEY
       ALGORITHM: $ALGORITHM
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      BROKER_URL: "redis://redis:6379"
+      IMAGES_DIR: "/app/output_images"
+      STATIC_CONTENT_PATH: "/images"
+    volumes:
+      - db-volume:/app/
+      - ./output_images:/app/output_images
     ports:
       - '8000:8000'
+
+  celery_worker:
+    build:
+      context: .
+    environment:
+      BROKER_URL: "redis://redis:6379"
+      IMAGES_DIR: "/app/output_images"
+      STATIC_CONTENT_PATH: "/images"
+    volumes:
+      - ./output_images:/app/output_images
+    command: celery -A app.core.celery.app worker --loglevel=INFO
+
+  redis:
+    image: redis:7.4.0
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-volume:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-h", "localhost", "-p", "6379", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  redis-volume:
+  db-volume:

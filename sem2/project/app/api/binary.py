@@ -1,24 +1,33 @@
-from typing import Annotated
+from typing import List
 
-import cv2
-from fastapi import APIRouter, File, Response
+from app.tasks.binary_tasks import binarize_image_task, binarize_image_result
+from fastapi import APIRouter, File, UploadFile
 
-from ..services.binary import otsu_binarization
-from ..services.grayscale import grayscale
-from ..core.auth import CurrentUser
+from app.core.auth import CurrentUser
 
 router = APIRouter(tags=["image binarization"])
 
 
 @router.post("/binary_image")
-async def binary(
+async def binary_image(
         current_user: CurrentUser,
-        image: Annotated[bytes, File()]
+        images: List[UploadFile] = File(...)
 ):
-    gray_img = grayscale(image)
+    task_ids = []
 
-    binary_img = otsu_binarization(gray_img)
+    for image in images:
+        image_bytes = await image.read()
+        task = binarize_image_task.delay(image_bytes)
+        task_ids.append(task.id)
 
-    _, encoded_img = cv2.imencode(".jpg", binary_img)
+    return {"tasks": task_ids}
 
-    return Response(content=encoded_img.tobytes(), media_type="image/jpeg")
+
+@router.get("/binary_image/{task_id}/status")
+async def binary_image_status(task_id: str):
+    result = binarize_image_result(task_id)
+    return {
+        "task_id": task_id,
+        "status": result.status,
+        "result": result.result if result.successful() else None
+    }

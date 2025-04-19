@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models.users import DbUser
+from app.models.users import DbUser
 
 
 def get_user_by_email(db: Session, email: str) -> Optional[DbUser]:

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 
-from ..core.auth import create_access_token, verify_password, get_password_hash
-from ..cruds.users import get_user_by_email, create_user
-from ..db.sqlite import DbSession
-from ..schemas.auth import Login, Register
-from ..schemas.users import UserWithToken
+from app.core.auth import create_access_token, verify_password, get_password_hash
+from app.cruds.users import get_user_by_email, create_user
+from app.db.sqlite import DbSession
+from app.schemas.auth import Login, Register
+from app.schemas.users import UserWithToken
 
 router = APIRouter(tags=["auth"])
 

@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
+    broker_url: str
+    images_dir: str
+    static_content_path: str
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

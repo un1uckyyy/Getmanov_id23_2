@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from ..core.auth import CurrentUser
-from ..schemas.users import User
+from app.core.auth import CurrentUser
+from app.schemas.users import User
 
 router = APIRouter(tags=['users'])
 

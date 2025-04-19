@@ -11,3 +11,5 @@ SQLAlchemy==2.0.39
 alembic==1.15.1
 
 pydantic-settings==2.8.1
+
+celery[redis]==5.5.1

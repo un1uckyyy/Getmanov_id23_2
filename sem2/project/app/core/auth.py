@@ -8,10 +8,10 @@ from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
-from .config import settings
-from ..cruds.users import get_user_by_email
-from ..db.sqlite import DbSession
-from ..models.users import DbUser
+from app.core.config import settings
+from app.cruds.users import get_user_by_email
+from app.db.sqlite import DbSession
+from app.models.users import DbUser
 
 
 class TokenData(BaseModel):

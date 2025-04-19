@@ -1,4 +1,9 @@
+import cv2
+import os
+from uuid import uuid4
 import numpy as np
+from app.services.grayscale import grayscale
+from app.core.config import settings
 
 
 # https://en.wikipedia.org/wiki/Otsu%27s_method
@@ -26,7 +31,22 @@ def otsu_threshold(image):
     return best_threshold
 
 
-def otsu_binarization(image):
-    threshold = otsu_threshold(image)
+def otsu_binarization(image: bytes) -> np.ndarray:
+    gray_img = grayscale(image)
 
-    return (image > threshold).astype(np.uint8) * 255
+    threshold = otsu_threshold(gray_img)
+
+    return (gray_img > threshold).astype(np.uint8) * 255
+
+
+def save_image_to_file(image: np.ndarray) -> str:
+    save_dir = settings.images_dir
+    static_dir = settings.static_content_path
+
+    os.makedirs(save_dir, exist_ok=True)
+    filename = f"{uuid4().hex}.png"
+    filepath = os.path.join(save_dir, filename)
+    cv2.imwrite(filepath, image)
+
+    static_path = os.path.join(static_dir, filename)
+    return static_path
